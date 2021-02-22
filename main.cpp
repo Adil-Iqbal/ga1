@@ -14,99 +14,100 @@ bool bracketsBalanced(string& expr);
 void sanitizeExpression(string& expr);
 string codeFormat(string& src);
 string arrayFormat(string& src);
+int eval(string& expr);
 
-int main(int argc, char* argv[]) {
-  // ArgumentManager am(argc, argv);
-  // string outFilename = am.get("output");
-  // string inFilename = am.get("input");
+// int main(int argc, char* argv[]) {
+//   // ArgumentManager am(argc, argv);
+//   // string outFilename = am.get("output");
+//   // string inFilename = am.get("input");
 
-  // ofstream outFile(outFilename);
-  // ifstream inFile(inFilename);
+//   // ofstream outFile(outFilename);
+//   // ifstream inFile(inFilename);
 
-  ifstream inFile("input12.txt");
+//   ifstream inFile("input12.txt");
 
-  Parser parser;
-  int num;
-  bool removed;
-  int invalid = 0;
-  LinkedList<int> sarah, alex;
-  LinkedList<int>* loc = &sarah;
-  vector<int> rejected;
-  string temp, pstr;
+//   Parser parser;
+//   int num;
+//   bool removed;
+//   int invalid = 0;
+//   LinkedList<int> sarah, alex;
+//   LinkedList<int>* loc = &sarah;
+//   vector<int> rejected;
+//   string temp, pstr;
 
-  while(!inFile.eof()) {
-    getline(inFile, temp);
+//   while(!inFile.eof()) {
+//     getline(inFile, temp);
 
-    // Ignore blank lines.
-    if (temp == "")
-      continue;
+//     // Ignore blank lines.
+//     if (temp == "")
+//       continue;
     
-    // Set location of insertion.
-    if (temp.rfind("Sarah", 0) == 0) {
-      loc = &sarah;
-      continue;
-    }
+//     // Set location of insertion.
+//     if (temp.rfind("Sarah", 0) == 0) {
+//       loc = &sarah;
+//       continue;
+//     }
 
-    else if (temp.rfind("Alex", 0) == 0) {
-      loc = &alex;
-      continue;
-    }
+//     else if (temp.rfind("Alex", 0) == 0) {
+//       loc = &alex;
+//       continue;
+//     }
 
-    // Retrieve passcode.
-    else if (temp.rfind("Passcode:", 0) == 0) {
-      pstr = temp.substr(9, temp.size() - 9);
-      continue;
-    }
+//     // Retrieve passcode.
+//     else if (temp.rfind("Passcode:", 0) == 0) {
+//       pstr = temp.substr(9, temp.size() - 9);
+//       continue;
+//     }
     
-    // Validate expression.
-    if (!bracketsBalanced(temp)) {
-      invalid += 1;
-      continue;
-    }
+//     // Validate expression.
+//     if (!bracketsBalanced(temp)) {
+//       invalid += 1;
+//       continue;
+//     }
 
-    // Evaluate expression.
-    sanitizeExpression(temp);
-    num = parser.eval(temp);
+//     // Evaluate expression.
+//     sanitizeExpression(temp);
+//     num = parser.eval(temp);
 
-    // Validate evaluation.
-    if (num < 0) {
-      rejected.push_back(num * -1);
-      continue;
-    }
+//     // Validate evaluation.
+//     if (num < 0) {
+//       rejected.push_back(num * -1);
+//       continue;
+//     }
 
-    // Insert num into respective stack.
-    loc->push(num);
-  }
+//     // Insert num into respective stack.
+//     loc->push(num);
+//   }
 
-  // Remove indicated values.
-  for (int reject : rejected) {
-    removed = sarah.remove(reject);
-    if (!removed)
-      alex.remove(reject);
-  }
+//   // Remove indicated values.
+//   for (int reject : rejected) {
+//     removed = sarah.remove(reject);
+//     if (!removed)
+//       alex.remove(reject);
+//   }
 
-  // Merge two lists.
-  LinkedList<int> jewels = sarah.merge(alex);
+//   // Merge two lists.
+//   LinkedList<int> jewels = sarah.merge(alex);
 
-  // Remove indicated node.
-  if (invalid > 0)
-    jewels.remove_node(invalid);
+//   // Remove indicated node.
+//   if (invalid > 0)
+//     jewels.remove_node(invalid);
   
-  // Reverse linked list.
-  jewels.reverse();
+//   // Reverse linked list.
+//   jewels.reverse();
 
-  // Print result to output. 
-  string sstr = sarah.str();
-  string astr = alex.str();
-  string jstr = jewels.str();
+//   // Print result to output. 
+//   string sstr = sarah.str();
+//   string astr = alex.str();
+//   string jstr = jewels.str();
 
-  cout << "Sarah: " << arrayFormat(sstr) << endl;
-  cout << "Alex: " << arrayFormat(astr) << endl;
-  cout << "Decoded passcode: " << codeFormat(jstr) << endl;
-  cout << "Actual passcode: " << codeFormat(pstr) << endl;
+//   cout << "Sarah: " << arrayFormat(sstr) << endl;
+//   cout << "Alex: " << arrayFormat(astr) << endl;
+//   cout << "Decoded passcode: " << codeFormat(jstr) << endl;
+//   cout << "Actual passcode: " << codeFormat(pstr) << endl;
 
-  return 0;
-}
+//   return 0;
+// }
 
 /* Converts string to array format: "abc" --> "[a, b, c]" */
 string arrayFormat(string& src) {
@@ -170,3 +171,33 @@ bool bracketsBalanced(string& expr) {
 };
 
 /* Evaluate Expression */
+int eval(string& expr) {
+  LinkedList<int> nums;
+  LinkedList<char> ops;
+  int num1, num2;
+  char oper;
+
+  for (int i = 0; i < expr.size(); i++) {
+    char c = expr[i];
+    if (isdigit(c)) {
+      nums.push(c - 48);
+    } else if (c != ')') {
+      ops.push(c);
+    } else {
+      while(!ops.is_empty() && ops.top() != '(') {
+        oper = ops.pop();
+        num1 = nums.pop();
+        num2 = nums.pop();
+
+        switch (oper) {
+          case '+': nums.push(num1 + num2); break;
+          case '-': nums.push(num1 - num2); break;
+        }
+      }
+      
+      oper = ops.pop();
+    }
+  }
+
+  return nums.pop();
+};
