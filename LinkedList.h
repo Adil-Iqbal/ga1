@@ -38,8 +38,8 @@ class LinkedList {
 template<typename T>
 void LinkedList<T>::recStr(Node<T>* node, string& str){ // CS: Must test.
   if(node != nullptr){
-    str += to_string(node->data);
     recStr(node->next, str);
+    str += to_string(node->data);
   }
 }
 

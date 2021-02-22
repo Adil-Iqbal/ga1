@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include <map>
 #include <vector>
 #include "LinkedList.h"
 #include "Parser.h"
@@ -28,8 +29,8 @@ int main(int argc, char* argv[]) {
   int num;
   bool removed;
   int invalid = 0;
-  LinkedList sarah, alex;
-  LinkedList* loc = &sarah;
+  LinkedList<int> sarah, alex;
+  LinkedList<int>* loc = &sarah;
   vector<int> rejected;
   string temp, pstr;
 
@@ -74,12 +75,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Insert num into respective stack.
-    (*loc).push(num);
+    loc->push(num);
   }
-
-  // Correct order.
-  sarah.reverse();
-  alex.reverse();
 
   // Remove indicated values.
   for (int reject : rejected) {
@@ -89,7 +86,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Merge two lists.
-  LinkedList jewels = sarah.merge(alex);
+  LinkedList<int> jewels = sarah.merge(alex);
 
   // Remove indicated node.
   if (invalid > 0)
@@ -154,29 +151,22 @@ void sanitizeExpression(string& expr) {
 }
 
 /* Validates whether expression's parenthesis are balanced. */
-const char open_brackets[] = { '(', '[', '{' }; 
-const char closed_brackets[] = { ')',  ']', '}' };
+map<char, int> open_brkts = {{'(', 1}, {'[', 2}, {'{', 3}};
+map<char, int> closed_brkts = {{')', 1}, {']', 2}, {'}', 3}};
 bool bracketsBalanced(string& expr) {
-  LinkedList stack;
+  LinkedList<int> stack;
   for (int i = 0; i < expr.size(); i++) {
-    for (int j = 0; j < 3; j++) {
-      if (expr[i] == open_brackets[j]) {
-        stack.push(j);
+      char c = expr[i];
+      if (open_brkts[c] > 0) {
+        stack.push(open_brkts[c]);
         break;
       }
-      if (expr[i] == closed_brackets[j]) {
-        if (stack.is_empty())
-          return false;
-        if (j == stack.top()) {
-          stack.pop();
-          break;
-        } else 
+      if (closed_brkts[c] > 0) {
+        if (stack.is_empty() || closed_brkts[c] != stack.pop()) 
           return false;
       }
     }
-  }
-  if (!stack.is_empty())
-    return false;
-  return true;
+  return stack.is_empty();
 };
 
+/* Evaluate Expression */
