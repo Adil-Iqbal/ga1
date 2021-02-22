@@ -16,6 +16,35 @@ string codeFormat(string& src);
 string arrayFormat(string& src);
 int eval(string& expr);
 
+int main() {
+  string s1 = "()()()";
+  string s2 = "([{}])";
+  string s3 = "";
+  string s4 = "{[()]}";
+  string s5 = "()([]){[[]]()}()";
+
+  string s6 = "(";
+  string s7 = ")";
+  string s8 = "[]{()})";
+  string s9 = "[){}]";
+  string s10 = "[[])";
+
+  cout << endl << "-- Valid --" << endl;
+  cout << bracketsBalanced(s1) << endl;
+  cout << bracketsBalanced(s2) << endl;
+  cout << bracketsBalanced(s3) << endl;
+  cout << bracketsBalanced(s4) << endl;
+  cout << bracketsBalanced(s5) << endl << endl;
+
+  cout << "-- Invalid --" << endl;
+  cout << bracketsBalanced(s6) << endl;
+  cout << bracketsBalanced(s7) << endl;
+  cout << bracketsBalanced(s8) << endl;
+  cout << bracketsBalanced(s9) << endl;
+  cout << bracketsBalanced(s10) << endl;
+  return 0;
+}
+
 // int main(int argc, char* argv[]) {
 //   // ArgumentManager am(argc, argv);
 //   // string outFilename = am.get("output");
@@ -157,16 +186,18 @@ map<char, int> closed_brkts = {{')', 1}, {']', 2}, {'}', 3}};
 bool bracketsBalanced(string& expr) {
   LinkedList<int> stack;
   for (int i = 0; i < expr.size(); i++) {
-      char c = expr[i];
-      if (open_brkts[c] > 0) {
-        stack.push(open_brkts[c]);
-        break;
-      }
-      if (closed_brkts[c] > 0) {
-        if (stack.is_empty() || closed_brkts[c] != stack.pop()) 
-          return false;
-      }
+    char c = expr[i];
+    if (open_brkts[c] > 0) {
+      stack.push(open_brkts[c]);
+      break;
     }
+    else if (closed_brkts[c] > 0) {
+      if (stack.is_empty())
+        return false;
+      if (closed_brkts[c] != stack.pop()) 
+        return false;
+    }
+  }
   return stack.is_empty();
 };
 
