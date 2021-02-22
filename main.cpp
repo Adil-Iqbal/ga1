@@ -189,7 +189,7 @@ bool bracketsBalanced(string& expr) {
     char c = expr[i];
     if (open_brkts[c] > 0) {
       stack.push(open_brkts[c]);
-      break;
+      continue;
     }
     else if (closed_brkts[c] > 0) {
       if (stack.is_empty())
