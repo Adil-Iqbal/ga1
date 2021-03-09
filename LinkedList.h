@@ -27,7 +27,7 @@ class LinkedList {
     bool const is_empty(); // Returns true if list is empty.
     T const top(); // Returns head->data. List is not changed.
     void push(const T& item); // Insert at beginning.
-    T pop(); // Remove from beginning, returning what was removed.
+    void pop(); // Remove from beginning, returning what was removed.
     string str(); // Returns list as a string, head is first char: "123" (no spaces or extra characters).
     void reverse(); // In-place reversal of list.
     bool remove(T item); // Remove the first occurance of the given object. Returns true if a node was removed.
@@ -36,7 +36,7 @@ class LinkedList {
 };
 
 template<typename T>
-void LinkedList<T>::recStr(Node<T>* node, string& str){ // CS: Must test.
+void LinkedList<T>::recStr(Node<T>* node, string& str){ 
   if(node != nullptr){
     recStr(node->next, str);
     str += to_string(node->data);
@@ -57,7 +57,6 @@ void LinkedList<T>::recReverse(Node<T>* previous, Node<T>* current){ // CS: Must
 template<typename T>
 bool LinkedList<T>::recRemove(Node<T>* previous, Node<T>* current, T& item, bool removed){ //CS: Must test.
   if(current != nullptr){
-    recRemove(current, current->next, item, removed);
     if(current->data == item){ // Item found; node will be removed.
       if(current == head){
         head = current->next;
@@ -69,6 +68,8 @@ bool LinkedList<T>::recRemove(Node<T>* previous, Node<T>* current, T& item, bool
       }
     removed = true;
     }
+    else
+      return recRemove(current, current->next, item, removed);
   }
   return removed;
 }
@@ -125,15 +126,12 @@ void LinkedList<T>::push(const T& item) {
 }
 
 template<typename T>
-T LinkedList<T>::pop() {
-  if (is_empty())
-    throw EmptyList();
-
-  T oldHeadData = head->data;
-  Node<T>* newHead = head->next;
-  delete head;
-  head = newHead;
-  return oldHeadData;
+void LinkedList<T>::pop() {
+  if (!is_empty()) {
+    Node<T>* newHead = head->next;
+    delete head;
+    head = newHead;
+  }
 }
 
 template<typename T>

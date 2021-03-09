@@ -11,7 +11,7 @@ done
 if [ -f ${program} ]; then
     rm ${program}
 fi
-g++ -std=c++11 main.cpp -o ${program}
+g++ -std=c++11 *main.cpp -o ${program}
 # if the file 'decode' does not exist then exit the test
 if [ ! -f ${program} ]; then
     echo -e "\033[1;91mCompile FAILED.\033[0m"

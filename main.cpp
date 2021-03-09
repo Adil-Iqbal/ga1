@@ -13,12 +13,14 @@ bool bracketsBalanced(string& expr);
 void sanitizeExpression(string& expr);
 string codeFormat(string& src);
 string arrayFormat(string& src);
-int eval(string& expr);
+int eval(const string& expr);
 
 int main(int argc, char* argv[]) {
   ArgumentManager am(argc, argv);
   string outFilename = am.get("output");
   string inFilename = am.get("input");
+  // string outFilename = "output13.txt";
+  // string inFilename = "input13.txt";
   ofstream outFile(outFilename);
   ifstream inFile(inFilename);
 
@@ -95,10 +97,10 @@ int main(int argc, char* argv[]) {
   string astr = alex.str();
   string jstr = jewels.str();
 
-  cout << "Sarah: " << arrayFormat(sstr) << endl;
-  cout << "Alex: " << arrayFormat(astr) << endl;
-  cout << "Decoded passcode: " << codeFormat(jstr) << endl;
-  cout << "Actual passcode: " << codeFormat(pstr) << endl;
+  outFile << "Sarah: " << arrayFormat(sstr) << endl;
+  outFile << "Alex: " << arrayFormat(astr) << endl;
+  outFile << "Decoded passcode: " << codeFormat(jstr) << endl;
+  outFile << "Actual passcode: " << codeFormat(pstr) << endl;
 
   return 0;
 }
@@ -159,41 +161,68 @@ bool bracketsBalanced(string& expr) {
     else if (closed_brkts[c] > 0) {
       if (stack.is_empty())
         return false;
-      if (closed_brkts[c] != stack.pop()) 
+      if (closed_brkts[c] != stack.top())
         return false;
+      else
+        stack.pop();
     }
   }
   return stack.is_empty();
 };
 
 /* Evaluate Expression */
-int eval(string& expr) {
+int eval(const string& raw) {
+  string expr = raw;
   sanitizeExpression(expr);
-  LinkedList<int> nums;
+  //CONVERT INFIX TO POSTFIX
+  string postfix = "";
   LinkedList<char> ops;
-  int num1, num2;
-  char oper;
 
   for (int i = 0; i < expr.length(); i++) {
-    char c = expr[i];
-    if (isdigit(c))
-      nums.push(c - 48); // ASCII of '0' is 48
-    else if (c != '(')
-      ops.push(c);
-    else {
-      while(!ops.is_empty() && ops.top() != ')') {
-        oper = ops.pop();
-        num1 = nums.pop();
-        num2 = nums.pop();
-
-        switch (oper) {
-          case '+': nums.push(num1 + num2); break;
-          case '-': nums.push(num1 - num2); break;
-        }
+    if (isdigit(expr[i]))
+      postfix.push_back(expr[i]);
+    else if (expr[i] == '(')
+      ops.push(expr[i]);
+    else if (expr[i] == ')') {
+      while (!ops.is_empty() && ops.top() != '(') {
+        postfix.push_back(ops.top());
+        ops.pop();
       }
-      oper = ops.pop();
+      if (ops.top() == '(')
+        ops.pop();  
+    }
+    else {
+      while (!ops.is_empty() && ops.top() != '(') {
+        postfix.push_back(ops.top());
+        ops.pop();
+      }
+      ops.push(expr[i]);
     }
   }
+  while (!ops.is_empty()) {
+    postfix.push_back(ops.top());
+    ops.pop();
+  }
 
-  return nums.pop();
+  //EVALUATE POSTFIX
+  LinkedList<char> nums;
+  int num1, num2;
+  
+  for (int i = 0; i < postfix.length(); i++) {
+    if (isdigit(postfix[i]))
+      nums.push(postfix[i] - 48);
+    else {
+      num1 = nums.top();
+      nums.pop();
+      num2 = nums.top();
+      nums.pop();
+      switch(postfix[i]) {
+        case '+': nums.push(num2 + num1); break;
+        case '-': nums.push(num2 - num1); break;
+      }
+    }
+  }
+  if (nums.is_empty())
+    return 0;
+  return nums.top();
 };
